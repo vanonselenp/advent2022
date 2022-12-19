@@ -2057,22 +2057,22 @@ def main(input, size):
     grid = {}
 
     tails = [
-        {'x': 11, 'y': 11, 'type': '1'},
-        {'x': 11, 'y': 11, 'type': '2'},
-        {'x': 11, 'y': 11, 'type': '3'},
-        {'x': 11, 'y': 11, 'type': '4'},
-        {'x': 11, 'y': 11, 'type': '5'},
-        {'x': 11, 'y': 11, 'type': '6'},
-        {'x': 11, 'y': 11, 'type': '7'},
-        {'x': 11, 'y': 11, 'type': '8'},
-        {'x': 11, 'y': 11, 'type': '9'}
+        {'x': 100, 'y': 100, 'type': '1'},
+        {'x': 100, 'y': 100, 'type': '2'},
+        {'x': 100, 'y': 100, 'type': '3'},
+        {'x': 100, 'y': 100, 'type': '4'},
+        {'x': 100, 'y': 100, 'type': '5'},
+        {'x': 100, 'y': 100, 'type': '6'},
+        {'x': 100, 'y': 100, 'type': '7'},
+        {'x': 100, 'y': 100, 'type': '8'},
+        {'x': 100, 'y': 100, 'type': '9'}
     ]
-    head = {'x': 11, 'y': 11, 'type': 'H'}
+    head = {'x': 100, 'y': 100, 'type': 'H'}
 
     for line in input.split('\n'):
         direction, amount = line.split(' ')
 
-        for i in range(0, int(amount)):
+        for step in range(0, int(amount)):
             if direction == 'U':
                 head['y'] = head['y'] + 1
             if direction == 'D':
@@ -2086,24 +2086,26 @@ def main(input, size):
 
             for tail in tails:
                 neighbours = get_neightbours(current_head)
+                coordinate = "%s:%s" % (tail['x'], tail['y'])
 
-                while "%s:%s" % (tail['x'], tail['y']) not in neighbours:
+                while not (coordinate in neighbours):
                     if abs(current_head['x'] - tail['x']) > 0:
                         tail['x'] = tail['x'] + (1 if (current_head['x'] - tail['x']) > 0 else -1)
                     
                     if abs(current_head['y'] - tail['y']) > 0:
                         tail['y'] = tail['y'] + (1 if (current_head['y'] - tail['y']) > 0 else -1)
 
-                grid["%s:%s" % (tail['x'], tail['y'])] = tail['type']
+                    coordinate = "%s:%s" % (tail['x'], tail['y'])
+
+                    if tail['type'] == '9':
+                        grid[coordinate] = tail['type']
                 current_head = tail
-            visualize_grid(grid, size)
+
+    # visualize_grid(grid, size)
 
     print(len([x for x in grid.values() if x == '9']))
 
 if __name__ == '__main__':
     # main(example, 40)
-    main(example2, 30)
-    # main(actual, 640)
-
-
-#why is it 2511? what did i do wrong?
+    # main(example2, 30)
+    main(actual, 1000)
