@@ -2044,6 +2044,14 @@ def visualize_grid(grid, size):
 
 
 
+def get_neightbours(current_head):
+    neighbours = []
+    for r in range(current_head['x'] - 1, current_head['x'] + 2):
+        for c in range(current_head['y'] - 1, current_head['y'] + 2):
+            neighbours.append(f'{r}:{c}')
+
+    return neighbours
+
 
 def main(input, size):
     grid = {}
@@ -2077,42 +2085,25 @@ def main(input, size):
             current_head = head
 
             for tail in tails:
-                l = []
-                for r in range(current_head['x'] - 1, current_head['x'] + 2):
-                    for c in range(current_head['y'] - 1, current_head['y'] + 2):
-                        l.append(f'{r}:{c}')
+                neighbours = get_neightbours(current_head)
 
-                if "%s:%s" % (tail['x'], tail['y']) in l:
-                    continue
-
-                
-
-                if current_head['x'] != tail['x'] and current_head['y'] != tail['y']:
-                    if "%s:%s" % (tail['x'], tail['y']) not in l:
+                while "%s:%s" % (tail['x'], tail['y']) not in neighbours:
+                    if abs(current_head['x'] - tail['x']) > 0:
                         tail['x'] = tail['x'] + (1 if (current_head['x'] - tail['x']) > 0 else -1)
+                    
+                    if abs(current_head['y'] - tail['y']) > 0:
                         tail['y'] = tail['y'] + (1 if (current_head['y'] - tail['y']) > 0 else -1)
-                #in same row
-                elif current_head['x'] == tail['x'] and current_head['y'] != tail['y'] and abs(current_head['y'] - tail['y']) > 1:
-                    if (current_head['y'] - tail['y']) > 1:
-                        tail['y'] = tail['y'] + 1
-                    else: 
-                        tail['y'] = tail['y'] - 1
-                #in same col
-                elif tail['y'] == current_head['y'] and current_head['x'] != tail['x'] and abs(current_head['x'] - tail['x']) > 1:
-                    if (current_head['x'] - tail['x']) > 1:
-                        tail['x'] = tail['x'] + 1
-                    else: 
-                        tail['x'] = tail['x'] - 1
 
                 grid["%s:%s" % (tail['x'], tail['y'])] = tail['type']
                 current_head = tail
-    # visualize_grid(grid, size)
+            visualize_grid(grid, size)
 
     print(len([x for x in grid.values() if x == '9']))
-    print(len([x for x in grid.values() ]))
-
 
 if __name__ == '__main__':
-    # main(example, 6)
+    # main(example, 40)
     main(example2, 30)
     # main(actual, 640)
+
+
+#why is it 2511? what did i do wrong?
