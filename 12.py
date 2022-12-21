@@ -1,5 +1,6 @@
 import json
 import copy
+import sys
 
 example = """Sabqponm
 abcryxxl
@@ -51,10 +52,7 @@ abcccccaaaaaacccccccaaaaaaaacccccccccccccccccccccccaaaaaaaaaaaaaaaaccccccccccccc
 
 def get_x_y(input, world,looking):
     cleaned = input.replace('\n', '')
-    return {
-        'x': int(cleaned.index(looking) / len(world[0])), 
-        'y': cleaned.index(looking) % len(world[0])
-    }
+    return "%s:%s" % (int(cleaned.index(looking) / len(world[0])), cleaned.index(looking) % len(world[0]))
 
 def parse(input):
     world = [[ord(c) - 96 if c.islower() else 1 if c == 'S' else 26 for c in line] for line in input.split('\n')]
@@ -63,47 +61,16 @@ def parse(input):
 
     return world, start, end
 
-# for diagonals:
-# def find_accessible_neighbours(world, current, visited):
-#     possible = []
+def visualise(world, previous):
+    for x in range(0, len(world)):
+        for y in range(0, len(world[x])):
+            print(chr(world[x][y] + 96) if f'{x}:{y}' in previous else ' ', end='')
+        print()
 
-#     lower_x = current['x'] - 1 if current['x'] > 0 else 0
-#     upper_x = current['x'] + 2 if current['x'] < len(world) - 1 else len(world)
-
-#     lower_y = current['y'] - 1 if current['y'] > 0 else 0
-#     upper_y = current['y'] + 2 if current['y'] < len(world[current['x']]) - 1 else len(world[current['x']])
-
-#     for x in range(lower_x, upper_x):
-#         for y in range(lower_y, upper_y):
-#             node = {'x': x, 'y': y}
-#             if abs(world[x][y] - world[current['x']][current['y']]) < 2 and node not in visited:
-#                 possible.append(node)
-
-#     return possible
-
-#  1  function Dijkstra(Graph, source):
-#  2      
-#  3      for each vertex v in Graph.Vertices:
-#  4          dist[v] ← INFINITY
-#  5          prev[v] ← UNDEFINED
-#  6          add v to Q
-#  7      dist[source] ← 0
-#  8      
-#  9      while Q is not empty:
-# 10          u ← vertex in Q with min dist[u]
-# 11          remove u from Q
-# 12          
-# 13          for each neighbor v of u still in Q:
-# 14              alt ← dist[u] + Graph.Edges(u, v)
-# 15              if alt < dist[v]:
-# 16                  dist[v] ← alt
-# 17                  prev[v] ← u
-# 18
-# 19      return dist[], prev[]
-
-def find_accessible_neighbours(world, current, visited):
+def find_accessible_neighbours(world, key):
     possible = []
 
+    current = {'x': int(key.split(':')[0]), 'y': int(key.split(':')[1])}
     locations = [
         {'x': -1, 'y': 0},
         {'x': 1, 'y': 0},
@@ -113,51 +80,72 @@ def find_accessible_neighbours(world, current, visited):
 
     for l in locations:
         check = {'x': current['x'] + l['x'], 'y': current['y'] + l['y']}
-        if check in visited:
-            continue
 
         inbounds =  check['x'] >= 0 and check['x'] < len(world) and check['y'] >= 0 and check['y'] < len(world[check['x']]) 
         if not inbounds:
             continue
 
-        can_move = abs(world[current['x']][current['y']] - world[check['x']][check['y']]) < 2
+        # can_move = abs(world[current['x']][current['y']] - world[check['x']][check['y']]) < 2
+        can_move = world[current['x']][current['y']] > world[check['x']][check['y']] or abs(world[current['x']][current['y']] - world[check['x']][check['y']]) < 2
         if can_move:
             possible.append(check)
-    
-    return possible
 
-def find_path(world, start, visited, end):
-    nieghbours = find_accessible_neighbours(world, start, visited)
+    return ["%s:%s" % (node['x'], node['y']) for node in possible]
 
-    if end in visited:
-        return len(visited)
-
-    if not nieghbours:
-        return nieghbours
-
-    possibles = []
-    for n in nieghbours:
-        result = find_path(world, n, copy.deepcopy(visited) + [n], end)
-        if result:
-            possibles.append(result)
-
-    possibles.sort()
-
-    if possibles:
-        return possibles[0]
-
-    return []
-
+def generate_nodes(world):
+    result = []
+    [[result.append("%s:%s" % (x, y)) for y in range(0, len(world[x]))] for x in range(0, len(world))]
+    return result
 
 def main(input):
     world, start, end = parse(input)
-    
-    answer = find_path(world, start, [start], end)
+    nodes = generate_nodes(world)
 
-    print('end', answer - 1)
+    shortest_path = {}
+    previous_nodes = {}
+
+    for n in nodes:
+        shortest_path[n] = sys.maxsize
+    shortest_path[start] = 0
+
+    unvisited_nodes = generate_nodes(world)
+
+    # while end not in previous_nodes:
+    while unvisited_nodes:
+        current = unvisited_nodes[0]
+        for node in unvisited_nodes:
+            if shortest_path[node] < shortest_path[current]:
+                current = node
+
+        neighbours = find_accessible_neighbours(world, current)
+        
+        if int(current.split(":")[0]) > 5 and int(current.split(":")[0]) < 38 and int(current.split(":")[1]) > 96 and int(current.split(":")[1]) < 135:
+            print(current, shortest_path[current], neighbours)
+
+        if (shortest_path[current] == 9223372036854775807):
+            break
+
+        for neighbour in neighbours:
+            possible_value = shortest_path[current] + 1
+            # compare current node height to neighbour height. only go current or up
+
+            if shortest_path[neighbour] > possible_value:
+                shortest_path[neighbour] = possible_value
+                previous_nodes[neighbour] = current
+
+        unvisited_nodes.remove(current)
+
+
+
+    unvisited_nodes = generate_nodes(world)
+
+    # print(previous_nodes, shortest_path)
+    print(shortest_path[end], end)
+    # print(previous_nodes)
+    visualise(world, previous_nodes)
 
 if __name__ == '__main__':
-    main(example)
+    # main(example)
     main(actual)
 
 #  01234567
