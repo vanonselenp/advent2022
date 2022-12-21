@@ -137,10 +137,27 @@ def part_one(world, start, end):
 def main(input):
     world, start, end = parse(input)
 
+    starting = []
+
     shortest_path, previous_nodes = part_one(world, start, end)
+    print(shortest_path[end], end)
+
+    for x in range(0, len(world)):
+        for y in range(0, len(world[x])):
+            if world[x][y] == 1:
+                starting.append(f'{x}:{y}')
+
+    totals = []
+    print(len(starting))
+    for s in starting:
+        shortest_path, previous_nodes = part_one(world, s, end)
+        totals.append(shortest_path[end])
+    totals.sort()
+    print(totals[0])
+
 
     # print(previous_nodes, shortest_path)
-    print(shortest_path[end], end)
+    # print(shortest_path[end], end)
     # print(previous_nodes)
     # visualise(world, previous_nodes)
 
