@@ -97,8 +97,7 @@ def generate_nodes(world):
     [[result.append("%s:%s" % (x, y)) for y in range(0, len(world[x]))] for x in range(0, len(world))]
     return result
 
-def main(input):
-    world, start, end = parse(input)
+def part_one(world, start, end):
     nodes = generate_nodes(world)
 
     shortest_path = {}
@@ -119,9 +118,6 @@ def main(input):
 
         neighbours = find_accessible_neighbours(world, current)
         
-        if int(current.split(":")[0]) > 5 and int(current.split(":")[0]) < 38 and int(current.split(":")[1]) > 96 and int(current.split(":")[1]) < 135:
-            print(current, shortest_path[current], neighbours)
-
         if (shortest_path[current] == 9223372036854775807):
             break
 
@@ -135,17 +131,21 @@ def main(input):
 
         unvisited_nodes.remove(current)
 
+    return shortest_path, previous_nodes
 
 
-    unvisited_nodes = generate_nodes(world)
+def main(input):
+    world, start, end = parse(input)
+
+    shortest_path, previous_nodes = part_one(world, start, end)
 
     # print(previous_nodes, shortest_path)
     print(shortest_path[end], end)
     # print(previous_nodes)
-    visualise(world, previous_nodes)
+    # visualise(world, previous_nodes)
 
 if __name__ == '__main__':
-    # main(example)
+    main(example)
     main(actual)
 
 #  01234567
