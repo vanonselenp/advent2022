@@ -186,8 +186,6 @@ def parse(input):
         for point in line:
             if point[0] < min_x:
                 min_x = point[0]
-            # if point[1] < min_y:
-            #     min_y = point[1]
             if point[0] > max_x:
                 max_x = point[0]
             if point[1] > max_y:
