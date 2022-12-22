@@ -193,7 +193,7 @@ def parse(input):
             if point[1] > max_y:
                 max_y = point[1]
 
-    return result, {'min': {'x': min_x - 10, 'y': 0}, 'max': {'x': max_x + 10, 'y': max_y + 10}}
+    return result, {'min': {'x': 0, 'y': 0}, 'max': {'x': 1000, 'y': max_y + 3}}
 
 def build_map(instructions, sizes):
     world = []
@@ -220,6 +220,9 @@ def build_map(instructions, sizes):
                     world[x][y] = '#'
             
             start = point
+
+    for x in range(0, sizes['max']['x']):
+        world[x][sizes['max']['y'] - 1] = '#'
 
     return world
 
