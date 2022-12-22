@@ -196,7 +196,6 @@ def parse(input):
     return result, {'min': {'x': min_x - 10, 'y': 0}, 'max': {'x': max_x + 10, 'y': max_y + 10}}
 
 def build_map(instructions, sizes):
-    # print(instructions)
     world = []
     for x in range(sizes['min']['x'], sizes['max']['x']):
         row = []
@@ -205,22 +204,21 @@ def build_map(instructions, sizes):
         world.append(row)
 
     for line in instructions:
-        start = [line[0][0] - sizes['min']['x'], line[0][1]]
-        
+        start = line[0]
+        start = [start[0] - sizes['min']['x'], start[1]]
+
         for point in line[1:]:
             point = [point[0] - sizes['min']['x'], point[1]]
-            if point[0] == start[0]:
-                for i in range(start[1], point[1] + 1):
-                    world[point[0]][i] = "#"
 
-            elif point[1] == start[1]:
-                if start[0] > point[0]:
-                    r = range(start[0], point[0] - 1, -1)
-                else :
-                    r = range(start[0], point[0] + 1)
-                for i in range(start[0], point[0] - 1, -1):
-                    world[i][point[1]] = "#"
+            xs = [start[0], point[0]]
+            xs.sort()
+            ys = [start[1], point[1]]
+            ys.sort()
 
+            for x in range(xs[0], xs[1] + 1):
+                for y in range(ys[0], ys[1] + 1):
+                    world[x][y] = '#'
+            
             start = point
 
     return world
@@ -238,7 +236,6 @@ def main(input):
 
     # visualise(map, sizes)
 
-    print(sizes)
     sand_source = 500 - sizes['min']['x']
 
     current_sand = {'x': sand_source, 'y': 0}
