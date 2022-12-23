@@ -184,23 +184,72 @@ def get_beacon(grid, sensors, range_max):
     return [found_x, found_y]
 
 
-# def get_beacon_2(sensors):
+def get_beacon_2(sensors, sizes):
+    edges = {}
+
+    for sensor, beacon in sensors:
+        edges[fmt_key(sensor[0], sensor[1])] = 'S'
+        edges[fmt_key(beacon[0], beacon[1])] = 'B'
+        distance = get_manhattan(sensor, beacon) + 1
+
+        for d in range(0, distance + 1):
+            edges[fmt_key(sensor[0] + distance - d, sensor[1] - d)] = '#'
+            edges[fmt_key(sensor[0] - distance + d, sensor[1] + d)] = '#'
+            edges[fmt_key(sensor[0] - distance + d, sensor[1] - d)] = '#'
+            edges[fmt_key(sensor[0] + distance - d, sensor[1] + d)] = '#'
 
 
+    candiates = {}
+    print(len(edges))
+    for k, v in edges.items():
+        in_range = False
+        node = [int(k.split(':')[0]), int(k.split(':')[1])]
+        for sensor, beacon in sensors:
+            distance = get_manhattan(sensor, beacon)
+            node_distance = get_manhattan(sensor, node)
+            if distance >= node_distance:
+                in_range = True
+
+        if not in_range:
+            candiates[k] = v
+
+    print(len(candiates))
+    for k, v in candiates.items():
+        node = [int(k.split(':')[0]), int(k.split(':')[1])]
+        neighbours = get_neighbours(node)
+        found = False
+        for n in neighbours:
+            if n in candiates:
+                found = True
+                break
+
+        if not found:
+            print(k)
+
+    return candiates
+
+def get_neighbours(node):
+    neighbours = []
+    for x in range(-1, 2):
+        for y in range(-1, 2):
+            if x != 0 and y != 0:
+                neighbours.append(fmt_key(node[0] + x, node[1] + y))
+
+    return neighbours
 
 def main(input, range_max):
-    sensors, sizes = parse(input)
+    # sensors, sizes = parse(input)
 
-    grid = build_grid(sensors)
+    # grid = build_grid(sensors)
 
     # entries = get_entries_on_row(grid, sizes, sensors, 2000000)
 
-    coords = get_beacon(grid, sensors, range_max)
+    # edges = get_beacon_2(sensors, sizes)
    
-    # visualise(grid, sizes)
+    # visualise(edges, sizes) 2960219:3211051
 
-    print(coords)
-
+    print(14 * 4000000 + 11)
+    print(2960219 * 4000000 + 3211051)
 
 if __name__ == '__main__':
     main(example, 20)
