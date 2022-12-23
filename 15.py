@@ -84,36 +84,18 @@ def parse(input):
 
     return output, {'min': {'x': min_x - 10, 'y': min_y - 10}, 'max': {'x': max_x + 10, 'y': max_y + 10}}
 
+def fmt_key(x, y):
+    return f'{x}:{y}'
 
-def build_grid(sensors, sizes):
-    print(sizes)
-    grid = []
-    for x in range(sizes['min']['x'], sizes['max']['x'] + 1):
-        row = []
-        for y in range(sizes['min']['y'], sizes['max']['y'] + 1):
-            row.append('.')
-        grid.append(row)
-
+def build_grid(sensors):
+    grid = {}
     index = 0
+
     for group in sensors:
         sensor, beacon = group
-        print(chr(index + 97), sensor)
-        grid[sensor[0] - sizes['min']['x']][sensor[1] - sizes['min']['y']] = 'S'
-        grid[beacon[0] - sizes['min']['x']][beacon[1] - sizes['min']['y']] = 'B'
-
-        distance = get_manhattan(sensor, beacon)
-        for x in range(sensor[0] - distance, sensor[0] + distance + 1):
-            if not (x >= 0 + sizes['min']['x'] and x < len(grid)):
-                print(x)
-                continue
-
-            for y in range(sensor[1]- distance - 1, sensor[1] + distance + 1):
-                if not (y >= 0 + sizes['min']['y'] and y < len(grid[0])):
-                    continue
-
-                if grid[x - sizes['min']['x'] ][y - sizes['min']['y']] == '.' and get_manhattan(sensor, [x, y]) <= distance:
-                    grid[x - sizes['min']['x'] ][y - sizes['min']['y'] ] = '#'
-
+        grid[fmt_key(sensor[0], sensor[1])] = 'S'
+        grid[fmt_key(beacon[0], beacon[1])] = 'B'
+        
         index = index + 1
 
     return grid
@@ -123,24 +105,104 @@ def get_manhattan(sensor, becon):
     return abs(sensor[0] - becon[0]) + abs(sensor[1] - becon[1])
 
 
-def visualise(grid):
-    for y in range(0, len(grid[0])):
-        for x in range(0, len(grid)):
-            print(grid[x][y], end='')
+def visualise(grid, sizes):
+    for y in range(sizes['min']['y'], sizes['max']['y']):
+        for x in range(sizes['min']['x'], sizes['max']['x']):
+            print(grid.get(fmt_key(x, y), '.'), end='')
         print()
 
-def main(input):
+def get_entries_on_row(grid, sizes, sensors, y):
+    total = 0
+
+    min_dist = sys.maxsize
+    max_dist = 0
+    for sensor, becon in sensors:
+        dist = get_manhattan(sensor, becon)
+        if dist > max_dist:
+            max_dist = dist
+
+        if dist < min_dist:
+            min_dist = dist
+
+    for x in range(sizes['min']['x'] - max_dist, sizes['max']['x'] + max_dist):
+        node = [x, y]
+        for sensor, beacon in sensors:
+            sensor_distance = get_manhattan(sensor, beacon)
+            node_distance = get_manhattan(sensor, node)
+            if sensor_distance >= node_distance:
+                key = fmt_key(x, y)
+                if key not in grid:
+                    grid[key] = '#'
+                    total = total + 1
+    return total
+
+
+def get_beacon(grid, sensors, range_max):
+    total = 0
+    found_y = None
+    found_x = None
+
+    for y in range(0, range_max):
+        print(y)
+        row = {}
+        total = 0
+        for x in range(0, range_max):
+
+            node = [x, y]
+            for sensor, beacon in sensors:
+                sensor_distance = get_manhattan(sensor, beacon)
+                node_distance = get_manhattan(sensor, node)
+                if sensor_distance >= node_distance:
+                    key = fmt_key(x, y)
+                    if key not in grid and key not in row:
+                        row[key] = '#'
+                        total = total + 1
+                    
+                    elif key in grid and (grid[key] == 'S' or grid[key] == 'B'):
+                        total = total + 1
+        if range_max - total == 1:
+            found_y = y
+            break
+
+    total = 0
+    for x in range(0, range_max):
+        node = [x, y]
+
+        found = False
+
+        for sensor, beacon in sensors:
+            sensor_distance = get_manhattan(sensor, beacon)
+            node_distance = get_manhattan(sensor, node)
+
+            if sensor_distance >= node_distance:
+                found = True
+                break
+
+        if found == False:
+            return [x, found_y]
+
+    return [found_x, found_y]
+
+
+# def get_beacon_2(sensors):
+
+
+
+def main(input, range_max):
     sensors, sizes = parse(input)
 
-    grid = build_grid(sensors, sizes)
+    grid = build_grid(sensors)
 
-    # visualise(grid)
+    # entries = get_entries_on_row(grid, sizes, sensors, 2000000)
 
-    # print("".join(grid[10]))
-    line = "".join([x[10 - sizes['min']['y']] for x in grid if x[10 - sizes['min']['y']] == '#'])
-    print(len(line), line)
+    coords = get_beacon(grid, sensors, range_max)
+   
+    # visualise(grid, sizes)
+
+    print(coords)
+
 
 if __name__ == '__main__':
-    main(example)
-    main(actual)
+    main(example, 20)
+    main(actual, 4000000)
     # main(example2)
