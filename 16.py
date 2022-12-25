@@ -176,6 +176,26 @@ def brute_force(graph, node, visited):
 
     return output
 
+
+def cost_cutter(graph, node, visited):
+    if len(visited) == len(graph.keys()):
+        return visited
+
+    current = graph[node]
+
+    max_value = 0
+    max_neighbour = list(current['links'].keys())[0]
+
+    for neighbour in  current['links'].keys():
+
+        current_value = calculate_cost(visited + [neighbour], copy.deepcopy(graph))
+        if current_value > max_value:
+            max_value = current_value
+            max_neighbour = neighbour
+
+    return cost_cutter(graph, max_neighbour, visited + [max_neighbour])
+
+
 def calculate_cost(visited, graph):
     current = visited[0]
     left = visited[1:]
@@ -209,15 +229,56 @@ def calculate_cost(visited, graph):
 
         # print()
 
+    # print(f'Total Pressure: {total}')
+
+    return total
+
+
+def calculate_cost_with_output(visited, graph):
+    current = visited[0]
+    left = visited[1:]
+
+    total = 0
+
+    cost = 1
+    delay = 0
+    while cost < 31:
+        print(f'=== Minute {cost - delay} ===')
+        opened = [x['name'] for x in graph.values() if x['open']]
+        pressure = sum([graph[x]['flow'] for x in opened])
+        total = total + pressure
+        print(f'Valves open: {opened}')
+        print(f'Currently in {current}')
+        print(f'PRESSURE in {pressure}')
+        if delay > 0:
+            delay = delay - 1
+        elif graph[current]['open'] == False and graph[current]['flow'] > 0:
+            graph[current]['open'] = True
+            cost = cost + 1
+        elif len(left) > 0:
+            print( graph[current], left[0])
+            cost = cost + graph[current]['links'][left[0]]
+            delay = graph[current]['links'][left[0]] - 1
+            # cost = cost + sum([v for k, v in graph[current]['links'].items() if k == left[0]])
+            current = left[0]
+            left = left[1:]
+        else:
+            cost = cost + 1
+
+        print()
+
     print(f'Total Pressure: {total}')
 
     return total
 
 
+
 def main(input, start):
     graph = parse(input, start)
 
-    output = brute_force(graph, start, [start])
+    # output = brute_fcost_cutterorce(graph, start, [start])
+
+    print(calculate_cost_with_output(cost_cutter(copy.deepcopy(graph), start, [start]), graph))
 
     # print(json.dumps(list(unique), indent=2), len(list(unique)))
 
@@ -234,12 +295,12 @@ def main(input, start):
     # print([graph[x]['flow'] for x in visited])
     # print([graph[x]['name'] for x in visited])
 
-    totals = []
-    for i in list(unique):
-        totals.append(calculate_cost(i.split(','), copy.deepcopy(graph)))
+    # totals = []
+    # for i in list(unique):
+    #     totals.append(calculate_cost(i.split(','), copy.deepcopy(graph)))
 
-    totals.sort(reverse=True)
-    print(totals[0])
+    # totals.sort(reverse=True)
+    # print(totals[0])
 
 
 if __name__ == "__main__":
