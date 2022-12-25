@@ -160,7 +160,7 @@ def dfs(visited, graph, node):
         for neighbour in neighbours:
             dfs(visited, graph, neighbour[0])
 
-def thing(graph, node, visited):
+def brute_force(graph, node, visited):
     current = graph[node]
 
     if len(visited) == len(graph.keys()):
@@ -170,14 +170,13 @@ def thing(graph, node, visited):
     output = []
     for l in current['links'].keys():
         if l not in visited:
-            result = thing(graph, graph[l]['name'], [] + visited + [l])
+            result = brute_force(graph, graph[l]['name'], [] + visited + [l])
             if result:
                 output.append(result)
 
     return output
 
 def calculate_cost(visited, graph):
-    print(visited)
     current = visited[0]
     left = visited[1:]
 
@@ -218,6 +217,10 @@ def calculate_cost(visited, graph):
 def main(input, start):
     graph = parse(input, start)
 
+    output = brute_force(graph, start, [start])
+
+    # print(json.dumps(list(unique), indent=2), len(list(unique)))
+
     # calculate_cost(visited, copy.deepcopy(graph))
 
     # visited = []
@@ -231,13 +234,12 @@ def main(input, start):
     # print([graph[x]['flow'] for x in visited])
     # print([graph[x]['name'] for x in visited])
 
-    # totals = []
-    # for i in list(unique):
-    #     print(i)
-    #     totals.append(calculate_cost(i.split(','), copy.deepcopy(graph)))
+    totals = []
+    for i in list(unique):
+        totals.append(calculate_cost(i.split(','), copy.deepcopy(graph)))
 
-    # totals.sort(reverse=True)
-    # print(totals[0])
+    totals.sort(reverse=True)
+    print(totals[0])
 
 
 if __name__ == "__main__":
