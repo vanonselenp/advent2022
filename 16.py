@@ -149,12 +149,7 @@ def parse(input, start):
     return graph
 
 
-def current_flow(graph):
-    return sum([v['flow'] for v in graph.values() if v['open']])
-
-
 def dfs(visited, graph, node):
-    # print('dfs', visited, node)
     if node not in visited:
         visited.append(node)
 
@@ -164,7 +159,6 @@ def dfs(visited, graph, node):
         for neighbour in neighbours:
             dfs(visited, graph, neighbour[0])
 
-random_stuff = {}
 
 def cost_cutter(graph, node, visited):
     if len(visited) == len(graph.keys()):
@@ -176,19 +170,14 @@ def cost_cutter(graph, node, visited):
     max_neighbour = list(current['links'].keys())[0]
 
     for neighbour in  current['links'].keys():
-
-        for link in graph[neighbour]['links'].keys():
-            for second in graph[link]['links'].keys():
-                for third in graph[second]['links'].keys():
-                    if neighbour not in visited:
-                        neighbour_visited = list(dict.fromkeys(visited + [neighbour, link, second, third]))
-                        dfs(neighbour_visited, graph, neighbour), copy.deepcopy(graph)
-                        current_value = calculate_cost(neighbour_visited, copy.deepcopy(graph))
-                        random_stuff[','.join(neighbour_visited)] = current_value
-                        if current_value > max_value:
-                            print("updated", max_value, current_value, neighbour, visited, neighbour_visited)
-                            max_value = current_value
-                            max_neighbour = neighbour
+        if neighbour not in visited:
+            neighbour_visited = list(dict.fromkeys(visited + [neighbour ]))
+            dfs(neighbour_visited, graph, neighbour), copy.deepcopy(graph)
+            current_value = calculate_cost(neighbour_visited, copy.deepcopy(graph))
+            if current_value > max_value:
+                print("updated", max_value, current_value, neighbour, visited, neighbour_visited)
+                max_value = current_value
+                max_neighbour = neighbour
     
     print("mox value", max_value)
 
@@ -265,35 +254,9 @@ def calculate_cost_with_output(visited, graph):
 def main(input, start):
     graph = parse(input, start)
 
-    # output = brute_fcost_cutterorce(graph, start, [start])
-
     print(calculate_cost_with_output(cost_cutter(copy.deepcopy(graph), start, [start]), graph))
-    costs = list(random_stuff.values())
-    costs.sort(reverse=True)
-    print(costs[0])
-    # print(json.dumps(list(unique), indent=2), len(list(unique)))
-
-    # calculate_cost(visited, copy.deepcopy(graph))
-
-    # visited = []
-
-    # dfs(visited, graph, start)
-    # calculate_cost(visited, copy.deepcopy(graph))
-    # output = th?ing(graph, start, [start])
-
-    # print(unique, len(unique))
-
-    # print([graph[x]['flow'] for x in visited])
-    # print([graph[x]['name'] for x in visited])
-
-    # totals = []
-    # for i in list(unique):
-    #     totals.append(calculate_cost(i.split(','), copy.deepcopy(graph)))
-
-    # totals.sort(reverse=True)
-    # print(totals[0])
 
 
 if __name__ == "__main__":
-    # main(example, 'AA')
-    main(actual, 'NA')
+    main(example, 'AA')
+    # main(actual, 'NA')
