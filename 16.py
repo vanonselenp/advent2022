@@ -152,6 +152,7 @@ def parse(input, start):
 def current_flow(graph):
     return sum([v['flow'] for v in graph.values() if v['open']])
 
+
 def dfs(visited, graph, node):
     # print('dfs', visited, node)
     if node not in visited:
@@ -163,22 +164,7 @@ def dfs(visited, graph, node):
         for neighbour in neighbours:
             dfs(visited, graph, neighbour[0])
 
-def brute_force(graph, node, visited):
-    current = graph[node]
-
-    if len(visited) == len(graph.keys()):
-        unique.add(",".join(visited))
-        return visited
-
-    output = []
-    for l in current['links'].keys():
-        if l not in visited:
-            result = brute_force(graph, graph[l]['name'], [] + visited + [l])
-            if result:
-                output.append(result)
-
-    return output
-
+random_stuff = {}
 
 def cost_cutter(graph, node, visited):
     if len(visited) == len(graph.keys()):
@@ -198,7 +184,7 @@ def cost_cutter(graph, node, visited):
                         neighbour_visited = list(dict.fromkeys(visited + [neighbour, link, second, third]))
                         dfs(neighbour_visited, graph, neighbour), copy.deepcopy(graph)
                         current_value = calculate_cost(neighbour_visited, copy.deepcopy(graph))
-
+                        random_stuff[','.join(neighbour_visited)] = current_value
                         if current_value > max_value:
                             print("updated", max_value, current_value, neighbour, visited, neighbour_visited)
                             max_value = current_value
@@ -218,31 +204,21 @@ def calculate_cost(visited, graph):
     cost = 1
     delay = 0
     while cost < 31:
-        # print(f'=== Minute {cost} ===')
         opened = [x['name'] for x in graph.values() if x['open']]
         pressure = sum([graph[x]['flow'] for x in opened])
         total = total + pressure
-        # print(f'Valves open: {opened}')
-        # print(f'Currently in {current}')
-        # print(f'PRESSURE in {pressure}')
         if delay > 0:
             delay = delay - 1
         elif graph[current]['open'] == False and graph[current]['flow'] > 0:
             graph[current]['open'] = True
             cost = cost + 1
         elif len(left) > 0:
-            # print( graph[current], left)
             cost = cost + graph[current]['links'][left[0]]
             delay = graph[current]['links'][left[0]] - 1
-            # cost = cost + sum([v for k, v in graph[current]['links'].items() if k == left[0]])
             current = left[0]
             left = left[1:]
         else:
             cost = cost + 1
-
-        # print()
-
-    # print(f'Total Pressure: {total}')
 
     return total
 
@@ -286,14 +262,15 @@ def calculate_cost_with_output(visited, graph):
     return total
 
 
-
 def main(input, start):
     graph = parse(input, start)
 
     # output = brute_fcost_cutterorce(graph, start, [start])
 
     print(calculate_cost_with_output(cost_cutter(copy.deepcopy(graph), start, [start]), graph))
-
+    costs = list(random_stuff.values())
+    costs.sort(reverse=True)
+    print(costs[0])
     # print(json.dumps(list(unique), indent=2), len(list(unique)))
 
     # calculate_cost(visited, copy.deepcopy(graph))
@@ -318,5 +295,5 @@ def main(input, start):
 
 
 if __name__ == "__main__":
-    main(example, 'AA')
-    # main(actual, 'NA')
+    # main(example, 'AA')
+    main(actual, 'NA')
