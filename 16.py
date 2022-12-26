@@ -3,6 +3,8 @@ import sys
 import copy
 import functools
 
+#aa, dd, bb, jj, hh, ee, cc, 
+#['AA', 'DD', 'JJ', 'BB', 'HH', 'EE', 'CC']
 example = """Valve AA has flow rate=0; tunnels lead to valves DD, II, BB
 Valve BB has flow rate=13; tunnels lead to valves CC, AA
 Valve CC has flow rate=2; tunnels lead to valves DD, BB
@@ -151,6 +153,7 @@ def current_flow(graph):
     return sum([v['flow'] for v in graph.values() if v['open']])
 
 def dfs(visited, graph, node):
+    # print('dfs', visited, node)
     if node not in visited:
         visited.append(node)
 
@@ -188,10 +191,20 @@ def cost_cutter(graph, node, visited):
 
     for neighbour in  current['links'].keys():
 
-        current_value = calculate_cost(visited + [neighbour], copy.deepcopy(graph))
-        if current_value > max_value:
-            max_value = current_value
-            max_neighbour = neighbour
+        for link in graph[neighbour]['links'].keys():
+            for second in graph[link]['links'].keys():
+                for third in graph[second]['links'].keys():
+                    if neighbour not in visited:
+                        neighbour_visited = list(dict.fromkeys(visited + [neighbour, link, second, third]))
+                        dfs(neighbour_visited, graph, neighbour), copy.deepcopy(graph)
+                        current_value = calculate_cost(neighbour_visited, copy.deepcopy(graph))
+
+                        if current_value > max_value:
+                            print("updated", max_value, current_value, neighbour, visited, neighbour_visited)
+                            max_value = current_value
+                            max_neighbour = neighbour
+    
+    print("mox value", max_value)
 
     return cost_cutter(graph, max_neighbour, visited + [max_neighbour])
 
@@ -218,7 +231,7 @@ def calculate_cost(visited, graph):
             graph[current]['open'] = True
             cost = cost + 1
         elif len(left) > 0:
-            # print( graph[current], left[0])
+            # print( graph[current], left)
             cost = cost + graph[current]['links'][left[0]]
             delay = graph[current]['links'][left[0]] - 1
             # cost = cost + sum([v for k, v in graph[current]['links'].items() if k == left[0]])
@@ -235,6 +248,7 @@ def calculate_cost(visited, graph):
 
 
 def calculate_cost_with_output(visited, graph):
+    print(visited)
     current = visited[0]
     left = visited[1:]
 
@@ -256,7 +270,7 @@ def calculate_cost_with_output(visited, graph):
             graph[current]['open'] = True
             cost = cost + 1
         elif len(left) > 0:
-            print( graph[current], left[0])
+            # print( graph[current], left[0])
             cost = cost + graph[current]['links'][left[0]]
             delay = graph[current]['links'][left[0]] - 1
             # cost = cost + sum([v for k, v in graph[current]['links'].items() if k == left[0]])
