@@ -162,6 +162,7 @@ def dfs(visited, graph, node):
 
 def cost_cutter(graph, node, visited):
     if len(visited) == len(graph.keys()):
+        print(visited)
         return visited
 
     current = graph[node]
@@ -171,7 +172,7 @@ def cost_cutter(graph, node, visited):
 
     for neighbour in  current['links'].keys():
         if neighbour not in visited:
-            neighbour_visited = list(dict.fromkeys(visited + [neighbour ]))
+            neighbour_visited = visited + [neighbour]
             dfs(neighbour_visited, graph, neighbour), copy.deepcopy(graph)
             current_value = calculate_cost(neighbour_visited, copy.deepcopy(graph))
             if current_value > max_value:
@@ -198,6 +199,7 @@ def calculate_cost(visited, graph):
         total = total + pressure
         if delay > 0:
             delay = delay - 1
+            cost = cost + 1
         elif graph[current]['open'] == False and graph[current]['flow'] > 0:
             graph[current]['open'] = True
             cost = cost + 1
@@ -231,6 +233,7 @@ def calculate_cost_with_output(visited, graph):
         print(f'PRESSURE in {pressure}')
         if delay > 0:
             delay = delay - 1
+            # cost = cost + 1
         elif graph[current]['open'] == False and graph[current]['flow'] > 0:
             graph[current]['open'] = True
             cost = cost + 1
@@ -254,8 +257,11 @@ def calculate_cost_with_output(visited, graph):
 def main(input, start):
     graph = parse(input, start)
 
-    print(calculate_cost_with_output(cost_cutter(copy.deepcopy(graph), start, [start]), graph))
+    print(calculate_cost_with_output(cost_cutter(copy.deepcopy(graph), start, [start]), copy.deepcopy(graph)))
+    best = ["AA", "DD", "BB", "JJ", "HH", "EE", "CC"]
+    calculate_cost_with_output(best, copy.deepcopy(graph))
 
+    print()
 
 if __name__ == "__main__":
     main(example, 'AA')
