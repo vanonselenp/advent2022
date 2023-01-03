@@ -156,11 +156,11 @@ def main(input):
     print('end', x)
     print()
 
-    subset = bfs(graph, "AA", ['AA'], 0, 0, 26)
+    score, visited = bfs(graph, "AA", ['AA'], 0, 0, 26)
 
-    elephant = bfs(graph, "AA", subset[1], subset[0], 0, 26)
+    elephant = bfs(graph, "AA", visited, score, 0, 26)
 
-    print(subset)
+    print(score, visited)
     print(elephant)
 
 
