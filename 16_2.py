@@ -154,8 +154,18 @@ def main(input):
     x = bfs(graph, "AA", ['AA'])
 
     print('end', x)
+    print()
+
+    subset = bfs(graph, "AA", ['AA'], 0, 0, 26)
+
+    elephant = bfs(graph, "AA", subset[1], subset[0], 0, 26)
+
+    print(subset)
+    print(elephant)
 
 
 if __name__ == '__main__':
-    main(example)
+    # main(example)
     main(actual)
+
+# 2881. where am i going wrong? too low
