@@ -40,8 +40,6 @@ def visualize(grid):
 
 
 def new_rock(grid, current_rock):
-
-
     return shapes[current_rock] + [empty, empty, empty] + grid, len(shapes[current_rock]) - 1
 
 
@@ -51,8 +49,6 @@ def move_down(grid, index):
     next = index + 1
     if grid[next] == empty:
         grid = [empty] + grid[0:next] + grid[next + 1:]
-
-
         changed = True
 
     return grid, changed
